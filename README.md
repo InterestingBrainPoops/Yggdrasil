@@ -1,2 +1,2 @@
 # Yggdrasil
-Javascript battlesnake that uses a move tree
+A battlesnake in Go that uses a move tree
