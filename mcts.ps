@@ -1,0 +1,18 @@
+/*
+Selection
+Selecting good child nodes, starting from the root node R, that represent states leading to better overall outcome (win).
+
+Expansion
+If L is a not a terminal node (i.e. it does not end the game), then create one or more child nodes and select one (C).
+
+Simulation (rollout)
+Run a simulated playout from C until a result is achieved.
+
+Backpropagation
+Update the current move sequence with the simulation result.
+*/
+
+type Node struct {
+  children : []Node
+  visits : int32
+}
