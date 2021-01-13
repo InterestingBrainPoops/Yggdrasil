@@ -206,29 +206,29 @@ type SnakeMove struct {
 // Valid responses are "up", "down", "left", or "right".
 // TODO: Use the information in the GameRequest object to determine your next move.
 func HandleMove(w http.ResponseWriter, r *http.Request) {
-  start := time.Now()
-	request := GameRequest{}
+  start := time.Now() // create times
+	request := GameRequest{} // jsonifies the request
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		log.Fatal(err)
 	}
   
-  standardRules := rules.StandardRuleset{FoodSpawnChance : 25, MinimumFood : 1};
+  standardRules := rules.StandardRuleset{FoodSpawnChance : 25, MinimumFood : 1}; // defines standard ruleset for game playouts
   
-  boardState, err := standardRules.CreateNextBoardState(&request.Board, getMoves(request.Board))
+  boardState, err := standardRules.CreateNextBoardState(&request.Board, getMoves(request.Board)) // creates boardstate based on random playout
 
   fmt.Printf("New boardstate: %v\n", boardState)
 
-  possibleMoves := getValidMoves(request.Board, request.You)
+  possibleMoves := getValidMoves(request.Board, request.You) // generates valid moves for snake
   var move Move
   if(len(possibleMoves ) == 0) {
-    fmt.Println("Dying now :(")
+    fmt.Println("Dying now :(") // if there is no more valid moves , itll just die. 
     move = Move{Direction:"up"};
   }else{
-	  move = possibleMoves[rand.Intn(len(possibleMoves))]
+	  move = possibleMoves[rand.Intn(len(possibleMoves))] // otherwise it will pick at random what move to go to.
   }
 	response := MoveResponse{
-		Direction: move.Direction,
+		Direction: move.Direction, 
 	}
 
 	fmt.Printf("MOVE: %s\n", response.Direction)
@@ -236,7 +236,7 @@ func HandleMove(w http.ResponseWriter, r *http.Request) {
   endtime := time.Now()
   fmt.Printf("TimeTaken: %d Microseconds\n", endtime.Sub(start).Microseconds());
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(response)
+	err = json.NewEncoder(w).Encode(response) // sends the thing off.
 	if err != nil {
 		log.Fatal(err)
 	}
