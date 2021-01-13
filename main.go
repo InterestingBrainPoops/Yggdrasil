@@ -230,7 +230,7 @@ func HandleMove(w http.ResponseWriter, r *http.Request) {
 	response := MoveResponse{
 		Direction: move.Direction, 
 	}
-
+  fmt.Printf("TURN: %s\n", request.Turn)
 	fmt.Printf("MOVE: %s\n", response.Direction)
   //time.Sleep(100 * time.Millisecond)
   endtime := time.Now()
