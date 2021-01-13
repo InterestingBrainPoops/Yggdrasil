@@ -1,3 +1,4 @@
+// package mcts
 type Node struct {
   MoveList []rules.SnakeMove
   Children []Node

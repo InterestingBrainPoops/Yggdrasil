@@ -132,6 +132,7 @@ func getMoves(b rules.BoardState) []rules.SnakeMove {
     } else {
       move = possibleMoves[rand.Intn(len(possibleMoves))]
     }
+
     fmt.Printf("%s is moving %s\n", snake.ID, move.Direction)
     ret[i] = rules.SnakeMove{
       ID: snake.ID, 
@@ -215,7 +216,19 @@ func HandleMove(w http.ResponseWriter, r *http.Request) {
   
   standardRules := rules.StandardRuleset{FoodSpawnChance : 25, MinimumFood : 1}; // defines standard ruleset for game playouts
   
-  boardState, err := standardRules.CreateNextBoardState(&request.Board, getMoves(request.Board)) // creates boardstate based on random playout
+  moves := getMoves(request.Board)
+  for _ , move := range moves {
+    if(move.Move == "up"){
+      move.Move = "down"
+    }
+    if(move.Move == "down"){
+      move.Move = "up"
+    }
+  }
+
+
+
+  boardState, err := standardRules.CreateNextBoardState(&request.Board, moves) // creates boardstate based on random playout
 
   fmt.Printf("New boardstate: %v\n", boardState)
 
