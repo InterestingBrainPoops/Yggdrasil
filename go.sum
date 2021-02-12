@@ -13,6 +13,8 @@ cloud.google.com/go/storage v1.0.0/go.mod h1:IhtSnM/ZTZV8YYJWCY8RULGVqBDmpoyjwiy
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/BattlesnakeOfficial/rules v1.0.16 h1:Lz23QrRLGNsTvfdt8rt9zB/wMgsaPd+/04iSm60VvLY=
 github.com/BattlesnakeOfficial/rules v1.0.16/go.mod h1:OWEXajZZKhUXESSiu0Mw/1K3vdcxS3d3rz+gEVpWDDc=
+github.com/BattlesnakeOfficial/rules v1.0.17 h1:+dfIxtp0Q8ifO1/MuTo6asER6hhi1J/iScNBrIvGLFY=
+github.com/BattlesnakeOfficial/rules v1.0.17/go.mod h1:V0FxuBl6wo0aVOnaDsw53ytWsUsXpNzaMO7gmAmokmg=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
