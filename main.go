@@ -17,32 +17,11 @@ type Game struct {
 	Timeout int32  `json:"timeout"`
 }
 
-/*type Coord struct {
-	X int32 `json:"x"`
-	Y int32 `json:"y"`
-}*/
-
 var UP = rules.Point{ X: 0, Y: 1}
 var DOWN = rules.Point{ X: 0, Y: -1}
 var LEFT = rules.Point{ X: -1, Y: 0}
 var RIGHT = rules.Point{ X: 1, Y: 0}
 
-/*type Battlesnake struct {
-	ID     string  `json:"id"`
-	Name   string  `json:"name"`
-	Health int32   `json:"health"`
-	Body   []rules.Point `json:"body"`
-	Head   rules.Point   `json:"head"`
-	Length int32   `json:"length"`
-	Shout  string  `json:"shout"`
-}*/
-
-/*type Board struct {
-	Height int32           `json:"height"`
-	Width  int32           `json:"width"`
-	Food   []rules.Point   `json:"food"`
-	Snakes []rules.Snake   `json:"snakes"`
-}*/
 
 type BattlesnakeInfoResponse struct {
 	APIVersion string `json:"apiversion"`
@@ -193,14 +172,6 @@ func Filter(vs []Move, f func(Move) bool) []Move {
     }
     return vsf
 }
-
-/*
-type SnakeMove struct {
-	ID   string
-	Move string
-}
-*/
-
 
 
 // HandleMove is called for each turn of each game.
