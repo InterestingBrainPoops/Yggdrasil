@@ -8,11 +8,69 @@ import (
 	"net/http"
 	"os"
 	"time"
-
+	"math"
 	"github.com/BattlesnakeOfficial/rules"
 )
 
 var strl = rules.StandardRuleset{FoodSpawnChance: 25, MinimumFood: 1}
+// childStates gets you the child states given a board state.
+func childStates(state rules.BoardState) []rules.BoardState{
+	return make([]rules.BoardState, 0)
+}
+
+func MaxMin(v1 int32, v2 int32, maximizing bool) int32{
+	if(maximizing){
+		if(v1 > v2){
+			return v1
+		}
+		return v2
+	}
+	if(v1 < v2){
+		return v1
+	}
+	return v2
+}
+
+
+
+
+
+// TODO:
+// Create the isTerminal, Heuristic, and childStates functions.
+func MiniMax(state rules.BoardState, depth int8, alpha int32, beta int32, maximizingplayer bool) int32 {
+	// if(depth == 0 || isTerminal(state)){
+	// 	return heuristic(state)
+	// }
+	if(maximizingplayer){
+		value := int32(math.Inf(-1))
+		for _ , x := range childStates(state){
+			value = MaxMin(value, MiniMax(x, depth -1, alpha, beta, false), true)
+			alpha = MaxMin(alpha, value, true)
+			if alpha >= beta {
+				break
+			}
+			return value
+		}
+	}else{
+		value := int32(math.Inf(1))
+		for _ , x := range childStates(state){
+			value = MaxMin(value, MiniMax(x, depth -1, alpha, beta, true), false)
+			beta = MaxMin(beta, value, false)
+			if alpha >= beta {
+				break
+			}
+		}
+		return value
+	}
+	log.Fatal("I guess this broke")
+	return 0
+}
+
+// init call looks like so:
+// MiniMax(origin, depth, int32(math.Inf(-1)), int32(math.Inf(1)), true)
+
+// Use this to determine the heuristic value of a node.
+
 
 type Game struct {
 	ID      string `json:"id"`
