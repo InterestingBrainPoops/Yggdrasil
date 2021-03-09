@@ -17,7 +17,7 @@ var strl = rules.StandardRuleset{FoodSpawnChance: 25, MinimumFood: 1}
 func childStates(state rules.BoardState) []rules.BoardState{
 	return make([]rules.BoardState, 0)
 }
-
+var YggMove = make([]rules.SnakeMove, 4)
 func MaxMin(v1 int32, v2 int32, maximizing bool) int32{
 	if(maximizing){
 		if(v1 > v2){
@@ -32,16 +32,60 @@ func MaxMin(v1 int32, v2 int32, maximizing bool) int32{
 }
 
 
+func cartN(a ...[]int) [][]int {
+    c := 1
+    for _, a := range a {
+        c *= len(a)
+    }
+    if c == 0 {
+        return nil
+    }
+    p := make([][]int, c)
+    b := make([]int, c*len(a))
+    n := make([]int, len(a))
+    s := 0
+    for i := range p {
+        e := s + len(a)
+        pi := b[s:e]
+        p[i] = pi
+        s = e
+        for j, n := range n {
+            pi[j] = a[j][n]
+        }
+        for j := len(n) - 1; j >= 0; j-- {
+            n[j]++
+            if n[j] < len(a[j]) {
+                break
+            }
+            n[j] = 0
+        }
+    }
+    return p
+}
+// IsTerminal Detects if a state is a gameend state.
+func IsTerminal(state rules.BoardState) bool{
+	out := false
 
-
-
+	return out
+}
+// Heuristic returns the heuristic value of a given state.
+func Heuristic(state rules.BoardState) int32{
+	out := int32(0)
+	return out
+}
+// ChildStates Returns the child states of a given boardstate. 
+func ChildStates(state rules.BoardState) int32{
+	out := int32(0)
+	return out
+}
 // TODO:
 // Create the isTerminal, Heuristic, and childStates functions.
-func MiniMax(state rules.BoardState, depth int8, alpha int32, beta int32, maximizingplayer bool) int32 {
-	// if(depth == 0 || isTerminal(state)){
-	// 	return heuristic(state)
-	// }
+func MiniMax(state rules.BoardState, depth int8, alpha int32, beta int32, maximizingplayer bool, yggmove string) int32 {
+	if(depth == 0 || IsTerminal(state)){
+		return Heuristic(state)
+	}
 	if(maximizingplayer){
+		// Yggdrasil move
 		value := int32(math.Inf(-1))
 		for _ , x := range childStates(state){
 			value = MaxMin(value, MiniMax(x, depth -1, alpha, beta, false), true)
@@ -52,6 +96,7 @@ func MiniMax(state rules.BoardState, depth int8, alpha int32, beta int32, maximi
 			return value
 		}
 	}else{
+		// Other snakes move
 		value := int32(math.Inf(1))
 		for _ , x := range childStates(state){
 			value = MaxMin(value, MiniMax(x, depth -1, alpha, beta, true), false)
@@ -136,7 +181,10 @@ func HandleStart(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	e := []string{"up", "down", "left", "right"}
+	for _, x := range e{
+		YggMove = append(YggMove, rules.SnakeMove{ID: request.You.ID, Move : x})
+	}
 	// Nothing to respond with here
 	fmt.Print("START\n")
 }
@@ -292,6 +340,11 @@ func HandleEnd(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+	e := []string{"up", "down", "left", "right"}
+	for _, x := range e{
+		YggMove = append(YggMove, rules.SnakeMove{})
+	}
 	port := os.Getenv("PORT")
 	path := os.Getenv("PATH")
 	if len(port) == 0 {
