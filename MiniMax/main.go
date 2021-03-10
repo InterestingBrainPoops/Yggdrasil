@@ -32,7 +32,7 @@ func MaxMin(v1 int32, v2 int32, maximizing bool) int32 {
 	return v2
 }
 
-func cartN(a ...[]int) [][]int {
+func cartN(a ...[]rules.SnakeMove) [][]rules.SnakeMove {
 	c := 1
 	for _, a := range a {
 		c *= len(a)
@@ -40,8 +40,8 @@ func cartN(a ...[]int) [][]int {
 	if c == 0 {
 		return nil
 	}
-	p := make([][]int, c)
-	b := make([]int, c*len(a))
+	p := make([][]rules.SnakeMove, c)
+	b := make([]rules.SnakeMove, c*len(a))
 	n := make([]int, len(a))
 	s := 0
 	for i := range p {
@@ -64,36 +64,52 @@ func cartN(a ...[]int) [][]int {
 }
 
 // IsTerminal Detects if a state is a gameend state.
-func IsTerminal(state rules.BoardState) bool {
-	out := false
-
+func IsTerminal(state *rules.BoardState) bool {
+	// Check if yggdrasil is dead
+	//    use the id from YggMove[0].ID
+	//    should be updated on each /start request.
+	// if yggdrasil is NOT dead then check if there is only 1 snake remaining
+	// if so return true
+	// default to false otherwise.
 	return out
 }
 
 // Heuristic returns the heuristic value of a given state.
-func Heuristic(state rules.BoardState) int32 {
+func Heuristic(state *rules.BoardState) int32 {
 	out := int32(0)
+	// for now just use vornoi.
+	// and if yggdrasil is dead then return -50
+	// if yggdrasil won return +50
+	// Value when you are closer to center.
+	//  (distancefromcenter / maxdistancefromcenter) * 30
 	return out
 }
 
 // ChildStates Returns the child states of a given boardstate.
-func ChildStates(state rules.BoardState, yggmove rules.SnakeMove) []rules.BoardState {
+func ChildStates(state *rules.BoardState, yggmove *rules.SnakeMove) []rules.BoardState {
 	out := make([]rules.BoardState, 0)
+	// create 2D array of possible moves
+	// append yggmove to that
+	// run cartN on that
+	// then iterate through the 2D array given from that
+	// creating new board states based on each of those move combos.
+	// return that list of board states.
 	return out
 }
 
+// MiniMax function to get a score for a given state.
 // TODO:
 // Create the isTerminal, Heuristic, and childStates functions.
-func MiniMax(state rules.BoardState, depth int8, alpha int32, beta int32, maximizingplayer bool, yggmove rules.SnakeMove) int32 {
-	if (yggmove == rules.SnakeMove{} && (depth == 0 || IsTerminal(state))) {
-		return Heuristic(state)
+func MiniMax(state rules.BoardState, depth int8, alpha int32, beta int32, maximizingplayer bool, yggmove *rules.SnakeMove) int32 {
+	if (*yggmove == rules.SnakeMove{} && (depth == 0 || IsTerminal(&state))) {
+		return Heuristic(&state)
 	}
 	if maximizingplayer {
 		// Yggdrasil move
 		value := int32(math.Inf(-1))
 		for _, x := range YggMove {
-			value = MaxMin(value, MiniMax(state, depth, alpha, beta, false, x), true) // gets min of the 2.
-			alpha = MaxMin(alpha, value, true)                                        // gets max of the 2
+			value = MaxMin(value, MiniMax(state, depth, alpha, beta, false, &x), true) // gets min of the 2.
+			alpha = MaxMin(alpha, value, true)                                         // gets max of the 2
 			if alpha >= beta {
 				break // beta cutoff
 			}
@@ -102,9 +118,9 @@ func MiniMax(state rules.BoardState, depth int8, alpha int32, beta int32, maximi
 	} else {
 		// Other snakes move
 		value := int32(math.Inf(1))
-		for _, x := range ChildStates(state, yggmove) {
-			value = MaxMin(value, MiniMax(x, depth-1, alpha, beta, true, rules.SnakeMove{}), false) // gets minimum of the two
-			beta = MaxMin(beta, value, false)                                                       // gets min of the two
+		for _, x := range ChildStates(&state, yggmove) {
+			value = MaxMin(value, MiniMax(x, depth-1, alpha, beta, true, &rules.SnakeMove{}), false) // gets minimum of the two
+			beta = MaxMin(beta, value, false)                                                        // gets min of the two
 			if alpha >= beta {
 				break // alpha cutoff
 			}
@@ -240,19 +256,19 @@ func getMoves(b rules.BoardState) []rules.SnakeMove {
 func getValidMoves(b rules.BoardState, snake rules.Snake) []Move {
 	// Choose a random direction to move in
 	possibleMoves := []Move{
-		Move{
+		{
 			Direction: "up",
 			Head:      add(snake.Body[0], UP),
 		},
-		Move{
+		{
 			Direction: "down",
 			Head:      add(snake.Body[0], DOWN),
 		},
-		Move{
+		{
 			Direction: "left",
 			Head:      add(snake.Body[0], LEFT),
 		},
-		Move{
+		{
 			Direction: "right",
 			Head:      add(snake.Body[0], RIGHT),
 		},
@@ -319,7 +335,7 @@ func HandleMove(w http.ResponseWriter, r *http.Request) {
 	response := MoveResponse{
 		Direction: move.Direction,
 	}
-	fmt.Printf("TURN: %s\n", request.Turn)
+	fmt.Printf("TURN: %d\n", request.Turn)
 	fmt.Printf("MOVE: %s\n", response.Direction)
 	//time.Sleep(100 * time.Millisecond)
 	fmt.Printf("TimeTaken: %d Microseconds\n", time.Now().Sub(start).Microseconds())
