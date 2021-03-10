@@ -4,99 +4,107 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"net/http"
 	"os"
 	"time"
-	"math"
+
 	"github.com/BattlesnakeOfficial/rules"
 )
 
 var strl = rules.StandardRuleset{FoodSpawnChance: 25, MinimumFood: 1}
+
+// YggMove basically stores the 4 possible moves for yggdrasil.
 var YggMove = make([]rules.SnakeMove, 4)
-func MaxMin(v1 int32, v2 int32, maximizing bool) int32{
-	if(maximizing){
-		if(v1 > v2){
+
+// MaxMin gets the minimum or maximum depending on the maximizing input.
+func MaxMin(v1 int32, v2 int32, maximizing bool) int32 {
+	if maximizing {
+		if v1 > v2 {
 			return v1
 		}
 		return v2
 	}
-	if(v1 < v2){
+	if v1 < v2 {
 		return v1
 	}
 	return v2
 }
 
-
 func cartN(a ...[]int) [][]int {
-    c := 1
-    for _, a := range a {
-        c *= len(a)
-    }
-    if c == 0 {
-        return nil
-    }
-    p := make([][]int, c)
-    b := make([]int, c*len(a))
-    n := make([]int, len(a))
-    s := 0
-    for i := range p {
-        e := s + len(a)
-        pi := b[s:e]
-        p[i] = pi
-        s = e
-        for j, n := range n {
-            pi[j] = a[j][n]
-        }
-        for j := len(n) - 1; j >= 0; j-- {
-            n[j]++
-            if n[j] < len(a[j]) {
-                break
-            }
-            n[j] = 0
-        }
-    }
-    return p
+	c := 1
+	for _, a := range a {
+		c *= len(a)
+	}
+	if c == 0 {
+		return nil
+	}
+	p := make([][]int, c)
+	b := make([]int, c*len(a))
+	n := make([]int, len(a))
+	s := 0
+	for i := range p {
+		e := s + len(a)
+		pi := b[s:e]
+		p[i] = pi
+		s = e
+		for j, n := range n {
+			pi[j] = a[j][n]
+		}
+		for j := len(n) - 1; j >= 0; j-- {
+			n[j]++
+			if n[j] < len(a[j]) {
+				break
+			}
+			n[j] = 0
+		}
+	}
+	return p
 }
+
 // IsTerminal Detects if a state is a gameend state.
-func IsTerminal(state rules.BoardState) bool{
+func IsTerminal(state rules.BoardState) bool {
 	out := false
 
 	return out
 }
+
 // Heuristic returns the heuristic value of a given state.
-func Heuristic(state rules.BoardState) int32{
+func Heuristic(state rules.BoardState) int32 {
 	out := int32(0)
 	return out
 }
-// ChildStates Returns the child states of a given boardstate. 
-func ChildStates(state rules.BoardState, yggmove rules.SnakeMove) []rules.BoardState{
+
+// ChildStates Returns the child states of a given boardstate.
+func ChildStates(state rules.BoardState, yggmove rules.SnakeMove) []rules.BoardState {
 	out := make([]rules.BoardState, 0)
 	return out
 }
+
 // TODO:
 // Create the isTerminal, Heuristic, and childStates functions.
 func MiniMax(state rules.BoardState, depth int8, alpha int32, beta int32, maximizingplayer bool, yggmove rules.SnakeMove) int32 {
-	if(yggmove == rules.SnakeMove{} && (depth == 0 || IsTerminal(state))){
+	if (yggmove == rules.SnakeMove{} && (depth == 0 || IsTerminal(state))) {
 		return Heuristic(state)
 	}
-	if(maximizingplayer){
+	if maximizingplayer {
 		// Yggdrasil move
 		value := int32(math.Inf(-1))
-		for _ , x := range YggMove{
+		for _, x := range YggMove {
 			value = MaxMin(value, MiniMax(state, depth, alpha, beta, false, x), true) // gets min of the 2.
-			alpha = MaxMin(alpha, value, true)// gets max of the 2
+			alpha = MaxMin(alpha, value, true)                                        // gets max of the 2
 			if alpha >= beta {
 				break // beta cutoff
 			}
 			return value
 		}
-	}else{
+	} else {
 		// Other snakes move
 		value := int32(math.Inf(1))
-		for _ , x := range ChildStates(state, yggmove){
-			value = MaxMin(value, MiniMax(x, depth -1, alpha, beta, true, rules.SnakeMove{}), false) // gets minimum of the two
-			beta = MaxMin(beta, value, false) // gets min of the two
+		for _, x := range ChildStates(state, yggmove) {
+			value = MaxMin(value, MiniMax(x, depth-1, alpha, beta, true, rules.SnakeMove{}), false) // gets minimum of the two
+			beta = MaxMin(beta, value, false)                                                       // gets min of the two
 			if alpha >= beta {
 				break // alpha cutoff
 			}
@@ -113,12 +121,10 @@ func MiniMax(state rules.BoardState, depth int8, alpha int32, beta int32, maximi
 
 // Use this to determine the heuristic value of a node.
 
-
 type Game struct {
 	ID      string `json:"id"`
 	Timeout int32  `json:"timeout"`
 }
-
 
 var UP = rules.Point{X: 0, Y: 1}
 var DOWN = rules.Point{X: 0, Y: -1}
@@ -179,12 +185,13 @@ func HandleStart(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	e := []string{"up", "down", "left", "right"}
-	for _, x := range e{
-		YggMove = append(YggMove, rules.SnakeMove{ID: request.You.ID, Move : x})
+	for _, x := range e {
+		YggMove = append(YggMove, rules.SnakeMove{ID: request.You.ID, Move: x})
 	}
 	// Nothing to respond with here
 	fmt.Print("START\n")
 }
+
 // Vector addition.
 func add(c rules.Point, vector rules.Point) rules.Point {
 	return rules.Point{
@@ -206,7 +213,8 @@ func newMove(direction string, vector rules.Point, snake rules.Snake) Move {
 		ID:        snake.ID,
 	}
 }
-// getMoves is used to get all moves for a boardstate. Will be used, with some modificaitons. 
+
+// getMoves is used to get all moves for a boardstate. Will be used, with some modificaitons.
 func getMoves(b rules.BoardState) []rules.SnakeMove {
 	ret := make([]rules.SnakeMove, len(b.Snakes))
 	for i, snake := range b.Snakes {
@@ -227,6 +235,7 @@ func getMoves(b rules.BoardState) []rules.SnakeMove {
 	}
 	return ret
 }
+
 // GetValidMoves returns all valid moves given a snake and a boardstate. Will remain unused.
 func getValidMoves(b rules.BoardState, snake rules.Snake) []Move {
 	// Choose a random direction to move in
@@ -329,8 +338,8 @@ func HandleEnd(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&request)
 	e := []string{"up", "down", "left", "right"}
 	YggMove = make([]rules.SnakeMove, 4)
-	for _, x := range e{
-		YggMove = append(YggMove, rules.SnakeMove{Move:x, ID:request.You.ID})
+	for _, x := range e {
+		YggMove = append(YggMove, rules.SnakeMove{Move: x, ID: request.You.ID})
 	}
 
 	if err != nil {
@@ -343,7 +352,6 @@ func HandleEnd(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	
 	port := os.Getenv("PORT")
 	path := os.Getenv("PATH")
 	if len(port) == 0 {
